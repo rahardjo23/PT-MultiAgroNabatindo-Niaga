@@ -1,5 +1,17 @@
 # Panduan Deploy ke Netlify
 
+## Optimasi Terbaru
+
+Project ini telah dioptimasi untuk performa maksimal:
+- Gambar dikompres 75-80% (13.3 MB → 3.1 MB)
+- WebP format untuk browser modern (90-97% lebih kecil)
+- Code splitting & minification otomatis
+- Build size total berkurang ~10 MB
+
+Lihat detail lengkap di [OPTIMIZATION.md](OPTIMIZATION.md)
+
+---
+
 ## Langkah-langkah Deploy:
 
 ### 1. Push ke GitHub
