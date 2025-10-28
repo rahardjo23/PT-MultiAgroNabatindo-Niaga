@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // Company knowledge base
 const COMPANY_CONTEXT = `You are a helpful AI assistant for PT. Multi Agronabatindo Niaga (PT. MAN), a professional palm oil trading company in Indonesia.
@@ -67,7 +67,7 @@ When answering questions:
 7. Keep responses concise but informative (2-4 sentences unless more detail is needed)
 8. IMPORTANT: Do NOT use markdown formatting (no **, *, __, _, etc.). Write in plain text only.`;
 
-export default async (req, context) => {
+exports.handler = async (event) => {
   // Handle CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -77,32 +77,51 @@ export default async (req, context) => {
   };
 
   // Handle preflight request
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers });
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers,
+      body: ''
+    };
   }
 
   // Only allow POST requests
-  if (req.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }),
-      { status: 405, headers }
-    );
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers,
+      body: JSON.stringify({ error: 'Method not allowed' })
+    };
   }
 
   try {
+    // Check if API key is set
+    if (!process.env.GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY is not set');
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({
+          error: 'Server configuration error',
+          details: 'API key not configured. Please contact administrator.'
+        })
+      };
+    }
+
     // Parse request body
-    const body = await req.json();
+    const body = JSON.parse(event.body);
     const { message, conversationHistory = [] } = body;
 
     if (!message) {
-      return new Response(
-        JSON.stringify({ error: 'Message is required' }),
-        { status: 400, headers }
-      );
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Message is required' })
+      };
     }
 
     // Initialize Gemini AI
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
     // Build conversation history for Gemini
     let conversationText = COMPANY_CONTEXT + '\n\nConversation History:\n';
@@ -118,31 +137,29 @@ export default async (req, context) => {
     conversationText += `\nUser: ${message}\nAssistant:`;
 
     // Call Gemini API
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const result = await model.generateContent(conversationText);
     const response = result.response;
     const assistantMessage = response.text();
 
-    return new Response(
-      JSON.stringify({
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
         message: assistantMessage,
         conversationId: Date.now().toString()
-      }),
-      { status: 200, headers }
-    );
+      })
+    };
 
   } catch (error) {
     console.error('Chat error:', error);
-    return new Response(
-      JSON.stringify({
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
         error: 'Failed to process chat message',
-        details: error.message
-      }),
-      { status: 500, headers }
-    );
+        details: error.message || 'Unknown error'
+      })
+    };
   }
-};
-
-export const config = {
-  path: '/api/chat'
 };

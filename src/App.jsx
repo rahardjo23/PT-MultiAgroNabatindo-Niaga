@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, Menu, X, Phone, Mail, MapPin, Factory, Leaf, Users, Award, TrendingUp, Globe, FileText, Download, Eye } from 'lucide-react';
+import { ChevronDown, ChevronUp, Menu, X, Phone, Mail, MapPin, Factory, Leaf, Users, Award, TrendingUp, Globe, FileText, Shield } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import ChatWidget from './ChatWidget';
 
@@ -21,13 +21,6 @@ import bulkPalmOilContainers from './assets/images/bulk-palm-oil-containers.png'
 import packagedCookingOil from './assets/images/packaged-cooking-oil.png';
 import direktorUtama from './assets/images/direkturutama.png';
 import direktur from './assets/images/direktur.jpg';
-
-// Import legal documents
-import aktePendirianPdf from './assets/legalitas/akte pendirian no.2 PT.MAN.pdf';
-import nibPdf from './assets/legalitas/NIB PT.MAN BERBASIS RESIKO.pdf';
-import npwpPdf from './assets/legalitas/NPWP PT. MAN ELEKTRONIK.pdf';
-import skKemenhunkam1999Pdf from './assets/legalitas/SK KEMENHUNKAM AKTE PENDIRIAN NO. 2 THN 1999.pdf';
-import skMenkehunkam2023Pdf from './assets/legalitas/SK MenKeuhunkam akte No.3 thn 2023.pdf';
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -997,70 +990,99 @@ function App() {
             </div>
           </div>
 
-          {/* Document Viewers */}
-          <div className="space-y-4">
+          {/* Legal Information Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
-              { title: 'Akta Pendirian No. 2 PT. MAN', subtitle: 'Tahun 1999', pdf: aktePendirianPdf },
-              { title: 'SK Kemenhunkam Akta Pendirian', subtitle: 'No. 2 Tahun 1999', pdf: skKemenhunkam1999Pdf },
-              { title: 'SK Menkehunkam Akta No. 3', subtitle: 'Tahun 2023', pdf: skMenkehunkam2023Pdf },
-              { title: 'NIB PT. MAN Berbasis Resiko', subtitle: 'Nomor Induk Berusaha', pdf: nibPdf },
-              { title: 'NPWP PT. MAN Elektronik', subtitle: 'Nomor Pokok Wajib Pajak', pdf: npwpPdf }
+              {
+                title: 'Akta Pendirian',
+                icon: FileText,
+                details: [
+                  { label: 'Nomor', value: 'No. 02' },
+                  { label: 'Tanggal', value: '04 Maret 1999' },
+                  { label: 'Daftar Perseroan', value: 'C-10726 HT.01.01 TH.99' }
+                ]
+              },
+              {
+                title: 'SK Kemenhunkam',
+                icon: FileText,
+                details: [
+                  { label: 'Akta Pendirian', value: 'No. 02 Tahun 1999' },
+                  { label: 'Perubahan Akta', value: 'No. 03 Tahun 2023' }
+                ]
+              },
+              {
+                title: 'Nomor Induk Berusaha (NIB)',
+                icon: FileText,
+                details: [
+                  { label: 'NIB', value: '1801230035033' },
+                  { label: 'Status', value: 'Berbasis Resiko' }
+                ]
+              },
+              {
+                title: 'NPWP',
+                icon: FileText,
+                details: [
+                  { label: 'Nomor', value: '01.906.860.0-123.000' },
+                  { label: 'Status', value: 'Aktif' }
+                ]
+              }
             ].map((doc, index) => {
               const isOpen = openDocuments[index];
+              const Icon = doc.icon;
               return (
-                <div key={index} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all border border-gray-200">
-                  <div className="p-4 md:p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                      {/* Icon and Title */}
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                          <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-0.5 line-clamp-2">{doc.title}</h3>
-                          <p className="text-gray-600 text-xs sm:text-sm">{doc.subtitle}</p>
-                        </div>
+                <div key={index} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all border border-emerald-100">
+                  <div className="p-6">
+                    {/* Header */}
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="w-14 h-14 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                        <Icon className="w-7 h-7 text-white" />
                       </div>
-                      {/* Buttons */}
-                      <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-gray-900 text-lg mb-1">{doc.title}</h3>
                         <button
                           onClick={() => setOpenDocuments(prev => ({ ...prev, [index]: !prev[index] }))}
-                          className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg transition-all shadow-md hover:shadow-lg font-medium flex-1 sm:flex-none text-sm"
+                          className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm transition-colors"
                         >
-                          <Eye className="w-4 h-4 flex-shrink-0" />
-                          <span className="whitespace-nowrap">
-                            {isOpen ? 'Hide' : 'See Details'}
-                          </span>
+                          <span>{isOpen ? 'Hide Details' : 'Show Details'}</span>
                           {isOpen ? (
-                            <ChevronUp className="w-4 h-4 flex-shrink-0" />
+                            <ChevronUp className="w-4 h-4" />
                           ) : (
-                            <ChevronDown className="w-4 h-4 flex-shrink-0" />
+                            <ChevronDown className="w-4 h-4" />
                           )}
                         </button>
-                        <a
-                          href={doc.pdf}
-                          download
-                          className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg transition-all border border-gray-300 font-medium flex-shrink-0"
-                          title="Download"
-                        >
-                          <Download className="w-4 h-4" />
-                          <span className="text-sm hidden md:inline">Download</span>
-                        </a>
                       </div>
                     </div>
+
+                    {/* Details */}
+                    {isOpen && (
+                      <div className="space-y-3 border-t border-gray-200 pt-4 animate-fade-in">
+                        {doc.details.map((detail, idx) => (
+                          <div key={idx} className="flex justify-between items-center">
+                            <span className="text-gray-600 text-sm">{detail.label}:</span>
+                            <span className="font-semibold text-gray-900">{detail.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  {isOpen && (
-                    <div className="border-t border-gray-200 bg-gray-50 p-4 animate-fade-in">
-                      <iframe
-                        src={doc.pdf}
-                        className="w-full h-[600px] border-0 rounded-lg shadow-inner"
-                        title={doc.title}
-                      />
-                    </div>
-                  )}
                 </div>
               );
             })}
+          </div>
+
+          {/* Security Notice */}
+          <div className="mt-8 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h4 className="font-bold text-emerald-900 mb-2">Dokumen Legal Perusahaan</h4>
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  Untuk verifikasi lengkap atau memerlukan salinan dokumen legal perusahaan, silakan hubungi kami melalui email di <a href="mailto:man@multiagroniaga.com" className="text-emerald-600 hover:text-emerald-700 font-semibold">man@multiagroniaga.com</a> atau telepon ke 061-4555092. Dokumen akan diberikan setelah melalui proses verifikasi dan untuk keperluan bisnis yang sah.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
