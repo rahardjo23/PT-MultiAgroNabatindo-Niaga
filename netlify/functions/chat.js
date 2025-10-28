@@ -131,8 +131,9 @@ exports.handler = async (event) => {
 
     conversationText += `\nUser: ${message}\nAssistant:`;
 
-    // Call Gemini API directly using fetch (v1 API endpoint)
-    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    // Call Gemini API directly using fetch (v1beta API endpoint with correct model)
+    // Using gemini-pro which is the stable model for v1beta API
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
     const response = await fetch(apiUrl, {
       method: 'POST',
