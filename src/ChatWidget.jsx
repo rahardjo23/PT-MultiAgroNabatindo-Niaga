@@ -155,7 +155,7 @@ function ChatWidget() {
               </div>
               <div className="min-w-0">
                 <h3 className="font-bold text-sm sm:text-lg truncate">PT. MAN Assistant</h3>
-                <p className="text-[10px] sm:text-xs text-emerald-100">Powered by Google Gemini</p>
+                <p className="text-[10px] sm:text-xs text-emerald-100">Powered by Claude AI</p>
               </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
@@ -261,7 +261,7 @@ function ChatWidget() {
                   </button>
                 </div>
                 <p className="text-[10px] sm:text-xs text-gray-500 mt-2 text-center">
-                  Powered by Google Gemini • Press Enter to send
+                  Powered by Claude AI • Press Enter to send
                 </p>
               </div>
             </>

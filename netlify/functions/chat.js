@@ -94,8 +94,8 @@ exports.handler = async (event) => {
 
   try {
     // Check if API key is set
-    if (!process.env.GEMINI_API_KEY) {
-      console.error('GEMINI_API_KEY is not set');
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.error('ANTHROPIC_API_KEY is not set');
       return {
         statusCode: 500,
         headers,
@@ -118,51 +118,58 @@ exports.handler = async (event) => {
       };
     }
 
-    // Build conversation history for Gemini
-    let conversationText = COMPANY_CONTEXT + '\n\nConversation History:\n';
+    // Build messages array for Claude API
+    const messages = [];
 
+    // Add conversation history
     conversationHistory.forEach(msg => {
       if (msg.role === 'user') {
-        conversationText += `User: ${msg.content}\n`;
+        messages.push({
+          role: 'user',
+          content: msg.content
+        });
       } else if (msg.role === 'assistant') {
-        conversationText += `Assistant: ${msg.content}\n`;
+        messages.push({
+          role: 'assistant',
+          content: msg.content
+        });
       }
     });
 
-    conversationText += `\nUser: ${message}\nAssistant:`;
+    // Add current user message
+    messages.push({
+      role: 'user',
+      content: message
+    });
 
-    // Call Gemini API directly using fetch (v1beta API endpoint with correct model)
-    // Using gemini-pro which is the stable model for v1beta API
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    // Call Anthropic Claude API
+    const apiUrl = 'https://api.anthropic.com/v1/messages';
 
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: conversationText
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1000,
-        }
+        model: 'claude-3-haiku-20240307',
+        max_tokens: 1024,
+        system: COMPANY_CONTEXT,
+        messages: messages
       })
     });
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('Gemini API error:', response.status, errorData);
-      throw new Error(`Gemini API error: ${response.status} - ${errorData}`);
+      console.error('Claude API error:', response.status, errorData);
+      throw new Error(`Claude API error: ${response.status} - ${errorData}`);
     }
 
     const data = await response.json();
 
-    // Extract the generated text
-    const assistantMessage = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
+    // Extract the assistant's response
+    const assistantMessage = data.content?.[0]?.text || 'Sorry, I could not generate a response.';
 
     return {
       statusCode: 200,
