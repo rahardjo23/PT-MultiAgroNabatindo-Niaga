@@ -137,7 +137,7 @@ exports.handler = async (event) => {
     conversationText += `\nUser: ${message}\nAssistant:`;
 
     // Call Gemini API
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
     const result = await model.generateContent(conversationText);
     const response = result.response;
     const assistantMessage = response.text();
