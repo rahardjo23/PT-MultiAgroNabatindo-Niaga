@@ -55,8 +55,8 @@ function ChatWidget() {
         content: msg.content
       }));
 
-      // Call backend API
-      const response = await fetch('http://localhost:3001/api/chat', {
+      // Call backend API (Netlify Function)
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

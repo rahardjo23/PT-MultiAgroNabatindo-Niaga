@@ -14,7 +14,8 @@
       "Bash(node:*)",
       "Bash(powershell -Command \"Stop-Process -Id 20392 -Force\")",
       "Bash(cat:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []
