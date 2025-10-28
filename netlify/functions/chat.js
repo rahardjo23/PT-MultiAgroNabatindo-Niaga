@@ -1,5 +1,3 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-
 // Company knowledge base
 const COMPANY_CONTEXT = `You are a helpful AI assistant for PT. Multi Agronabatindo Niaga (PT. MAN), a professional palm oil trading company in Indonesia.
 
@@ -120,9 +118,6 @@ exports.handler = async (event) => {
       };
     }
 
-    // Initialize Gemini AI
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
     // Build conversation history for Gemini
     let conversationText = COMPANY_CONTEXT + '\n\nConversation History:\n';
 
@@ -136,12 +131,37 @@ exports.handler = async (event) => {
 
     conversationText += `\nUser: ${message}\nAssistant:`;
 
-    // Call Gemini API
-    // Using gemini-1.5-flash-latest which should work with current SDK
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
-    const result = await model.generateContent(conversationText);
-    const response = result.response;
-    const assistantMessage = response.text();
+    // Call Gemini API directly using fetch (v1 API endpoint)
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: conversationText
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1000,
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Gemini API error:', response.status, errorData);
+      throw new Error(`Gemini API error: ${response.status} - ${errorData}`);
+    }
+
+    const data = await response.json();
+
+    // Extract the generated text
+    const assistantMessage = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
 
     return {
       statusCode: 200,
