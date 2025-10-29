@@ -155,7 +155,7 @@ function ChatWidget() {
               </div>
               <div className="min-w-0">
                 <h3 className="font-bold text-sm sm:text-lg truncate">PT. MAN Assistant</h3>
-                <p className="text-[10px] sm:text-xs text-emerald-100">Powered by Claude AI</p>
+                <p className="text-[10px] sm:text-xs text-emerald-100">Powered by Google Gemini</p>
               </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
@@ -248,8 +248,8 @@ function ChatWidget() {
                     placeholder="Type your message..."
                     rows="1"
                     disabled={isLoading}
-                    className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 sm:px-4 sm:py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-xs sm:text-sm"
-                    style={{ maxHeight: '100px' }}
+                    className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 sm:px-4 sm:py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+                    style={{ maxHeight: '100px', fontSize: '16px' }}
                   />
                   <button
                     onClick={sendMessage}
@@ -261,7 +261,7 @@ function ChatWidget() {
                   </button>
                 </div>
                 <p className="text-[10px] sm:text-xs text-gray-500 mt-2 text-center">
-                  Powered by Claude AI • Press Enter to send
+                  Powered by Google Gemini • Press Enter to send
                 </p>
               </div>
             </>
