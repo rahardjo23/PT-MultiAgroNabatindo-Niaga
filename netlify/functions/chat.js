@@ -94,8 +94,8 @@ exports.handler = async (event) => {
 
   try {
     // Check if API key is set
-    if (!process.env.ANTHROPIC_API_KEY) {
-      console.error('ANTHROPIC_API_KEY is not set');
+    if (!process.env.GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY is not set');
       return {
         statusCode: 500,
         headers,
@@ -118,58 +118,46 @@ exports.handler = async (event) => {
       };
     }
 
-    // Build messages array for Claude API
-    const messages = [];
+    // Build conversation text
+    let conversationText = COMPANY_CONTEXT + '\n\nConversation History:\n';
 
-    // Add conversation history
     conversationHistory.forEach(msg => {
       if (msg.role === 'user') {
-        messages.push({
-          role: 'user',
-          content: msg.content
-        });
+        conversationText += `User: ${msg.content}\n`;
       } else if (msg.role === 'assistant') {
-        messages.push({
-          role: 'assistant',
-          content: msg.content
-        });
+        conversationText += `Assistant: ${msg.content}\n`;
       }
     });
 
-    // Add current user message
-    messages.push({
-      role: 'user',
-      content: message
-    });
+    conversationText += `\nUser: ${message}\nAssistant:`;
 
-    // Call Anthropic Claude API
-    const apiUrl = 'https://api.anthropic.com/v1/messages';
+    // Call Gemini API using the correct v1 API endpoint
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-haiku-20240307',
-        max_tokens: 1024,
-        system: COMPANY_CONTEXT,
-        messages: messages
+        contents: [{
+          parts: [{
+            text: conversationText
+          }]
+        }]
       })
     });
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('Claude API error:', response.status, errorData);
-      throw new Error(`Claude API error: ${response.status} - ${errorData}`);
+      console.error('Gemini API error:', response.status, errorData);
+      throw new Error(`Gemini API error: ${response.status} - ${errorData}`);
     }
 
     const data = await response.json();
 
-    // Extract the assistant's response
-    const assistantMessage = data.content?.[0]?.text || 'Sorry, I could not generate a response.';
+    // Extract the generated text
+    const assistantMessage = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
 
     return {
       statusCode: 200,
