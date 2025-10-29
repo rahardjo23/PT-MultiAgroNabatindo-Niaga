@@ -1,3 +1,5 @@
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
 // Company knowledge base
 const COMPANY_CONTEXT = `You are a helpful AI assistant for PT. Multi Agronabatindo Niaga (PT. MAN), a professional palm oil trading company in Indonesia.
 
@@ -118,6 +120,18 @@ exports.handler = async (event) => {
       };
     }
 
+    // Initialize Gemini AI with SDK
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+    // Get the generative model - using gemini-1.5-flash-latest
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash-latest",
+      generationConfig: {
+        maxOutputTokens: 500,
+        temperature: 0.7,
+      }
+    });
+
     // Build conversation text
     let conversationText = COMPANY_CONTEXT + '\n\nConversation History:\n';
 
@@ -131,33 +145,10 @@ exports.handler = async (event) => {
 
     conversationText += `\nUser: ${message}\nAssistant:`;
 
-    // Call Gemini API using the correct v1 API endpoint
-    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`;
-
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: conversationText
-          }]
-        }]
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.text();
-      console.error('Gemini API error:', response.status, errorData);
-      throw new Error(`Gemini API error: ${response.status} - ${errorData}`);
-    }
-
-    const data = await response.json();
-
-    // Extract the generated text
-    const assistantMessage = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
+    // Generate content using SDK
+    const result = await model.generateContent(conversationText);
+    const response = await result.response;
+    const assistantMessage = response.text();
 
     return {
       statusCode: 200,
