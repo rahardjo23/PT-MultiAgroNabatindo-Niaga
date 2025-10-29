@@ -123,9 +123,9 @@ exports.handler = async (event) => {
     // Initialize Gemini AI with SDK
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-    // Get the generative model - using gemini-1.5-flash-latest
+    // Get the generative model - using gemini-flash-latest (always stable!)
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
+      model: "gemini-flash-latest",
       generationConfig: {
         maxOutputTokens: 500,
         temperature: 0.7,
