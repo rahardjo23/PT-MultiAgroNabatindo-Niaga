@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, Menu, X, Phone, Mail, MapPin, Factory, Leaf, Users, Award, TrendingUp, Globe, FileText, Shield } from 'lucide-react';
+import { ChevronDown, Menu, X, Phone, Mail, MapPin, Factory, Leaf, Users, Award, TrendingUp, Globe, FileText, Shield } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import ChatWidget from './ChatWidget';
 
@@ -28,7 +28,6 @@ function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', or null
-  const [openDocuments, setOpenDocuments] = useState({}); // Track which documents are open
 
   useEffect(() => {
     const handleScroll = () => {
@@ -949,139 +948,6 @@ function App() {
                   <span>Storage tank kapasitas 10.000 mton total</span>
                 </li>
               </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Company Legality - Separate Section Above Contact */}
-      <section className="py-16 bg-gradient-to-b from-white to-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-emerald-900 mb-4">Legalitas Perusahaan</h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-emerald-600 to-emerald-400 mx-auto mb-6"></div>
-            <p className="text-xl text-gray-600">Dokumen legal resmi perusahaan</p>
-          </div>
-
-          {/* Summary Cards */}
-          <div className="bg-gradient-to-br from-emerald-900 to-emerald-800 text-white p-8 md:p-10 rounded-3xl shadow-2xl mb-16">
-            <h3 className="text-2xl font-bold text-center mb-8">Ringkasan Legal</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-white/20 hover:bg-white/15 transition-all text-center">
-                <Award className="w-14 h-14 mx-auto mb-4 text-emerald-300" />
-                <p className="text-sm text-emerald-200 mb-2 font-medium">Akta Pendirian</p>
-                <p className="font-bold text-lg">No. 02 - 04 Maret 1999</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-white/20 hover:bg-white/15 transition-all text-center">
-                <Award className="w-14 h-14 mx-auto mb-4 text-emerald-300" />
-                <p className="text-sm text-emerald-200 mb-2 font-medium">Daftar Perseroan</p>
-                <p className="font-bold text-lg">C-10726 HT.01.01 TH.99</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-white/20 hover:bg-white/15 transition-all text-center">
-                <Award className="w-14 h-14 mx-auto mb-4 text-emerald-300" />
-                <p className="text-sm text-emerald-200 mb-2 font-medium">NIB</p>
-                <p className="font-bold text-lg">1801230035033</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-white/20 hover:bg-white/15 transition-all text-center">
-                <Award className="w-14 h-14 mx-auto mb-4 text-emerald-300" />
-                <p className="text-sm text-emerald-200 mb-2 font-medium">NPWP</p>
-                <p className="font-bold text-lg">01.906.860.0-123.000</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Legal Information Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              {
-                title: 'Akta Pendirian',
-                icon: FileText,
-                details: [
-                  { label: 'Nomor', value: 'No. 02' },
-                  { label: 'Tanggal', value: '04 Maret 1999' },
-                  { label: 'Daftar Perseroan', value: 'C-10726 HT.01.01 TH.99' }
-                ]
-              },
-              {
-                title: 'SK Kemenhunkam',
-                icon: FileText,
-                details: [
-                  { label: 'Akta Pendirian', value: 'No. 02 Tahun 1999' },
-                  { label: 'Perubahan Akta', value: 'No. 03 Tahun 2023' }
-                ]
-              },
-              {
-                title: 'Nomor Induk Berusaha (NIB)',
-                icon: FileText,
-                details: [
-                  { label: 'NIB', value: '1801230035033' },
-                  { label: 'Status', value: 'Berbasis Resiko' }
-                ]
-              },
-              {
-                title: 'NPWP',
-                icon: FileText,
-                details: [
-                  { label: 'Nomor', value: '01.906.860.0-123.000' },
-                  { label: 'Status', value: 'Aktif' }
-                ]
-              }
-            ].map((doc, index) => {
-              const isOpen = openDocuments[index];
-              const Icon = doc.icon;
-              return (
-                <div key={index} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all border border-emerald-100">
-                  <div className="p-6">
-                    {/* Header */}
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-14 h-14 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                        <Icon className="w-7 h-7 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-gray-900 text-lg mb-1">{doc.title}</h3>
-                        <button
-                          onClick={() => setOpenDocuments(prev => ({ ...prev, [index]: !prev[index] }))}
-                          className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm transition-colors"
-                        >
-                          <span>{isOpen ? 'Hide Details' : 'Show Details'}</span>
-                          {isOpen ? (
-                            <ChevronUp className="w-4 h-4" />
-                          ) : (
-                            <ChevronDown className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Details */}
-                    {isOpen && (
-                      <div className="space-y-3 border-t border-gray-200 pt-4 animate-fade-in">
-                        {doc.details.map((detail, idx) => (
-                          <div key={idx} className="flex justify-between items-center">
-                            <span className="text-gray-600 text-sm">{detail.label}:</span>
-                            <span className="font-semibold text-gray-900">{detail.value}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Security Notice */}
-          <div className="mt-8 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <FileText className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h4 className="font-bold text-emerald-900 mb-2">Dokumen Legal Perusahaan</h4>
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  Untuk verifikasi lengkap atau memerlukan salinan dokumen legal perusahaan, silakan hubungi kami melalui email di <a href="mailto:man@multiagroniaga.com" className="text-emerald-600 hover:text-emerald-700 font-semibold">man@multiagroniaga.com</a> atau telepon ke 061-4555092. Dokumen akan diberikan setelah melalui proses verifikasi dan untuk keperluan bisnis yang sah.
-                </p>
-              </div>
             </div>
           </div>
         </div>
