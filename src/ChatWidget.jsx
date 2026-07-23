@@ -67,11 +67,38 @@ function ChatWidget() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to get response');
+      const contentType = response.headers.get('content-type') || '';
+      const responseText = await response.text();
+      let data = null;
+
+      if (responseText.trim()) {
+        if (contentType.includes('application/json')) {
+          try {
+            data = JSON.parse(responseText);
+          } catch {
+            throw new Error('Server returned invalid JSON');
+          }
+        } else {
+          throw new Error(responseText.slice(0, 200) || `Server error (${response.status})`);
+        }
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        const isProxyOrServerDown =
+          !responseText.trim() || response.status === 502 || response.status === 504;
+
+        if (isProxyOrServerDown) {
+          throw new Error(
+            'Unable to reach the chat service. In local development, run `npm run server` alongside `npm run dev`, and ensure GEMINI_API_KEY is set in .env.'
+          );
+        }
+
+        throw new Error(data?.details || data?.error || `Failed to get response (${response.status})`);
+      }
+
+      if (!data?.message) {
+        throw new Error('Server returned an empty response');
+      }
 
       // Add assistant response
       const assistantMessage = {
@@ -84,11 +111,15 @@ function ChatWidget() {
 
     } catch (error) {
       console.error('Chat error:', error);
-      
-      // Add error message
+
+      const isNetworkError = error.message === 'Failed to fetch';
+      const errorDetail = isNetworkError
+        ? 'Unable to reach the chat service. In local development, run `npm run server` alongside `npm run dev`.'
+        : error.message;
+
       const errorMessage = {
         role: 'assistant',
-        content: 'I apologize, but I\'m having trouble connecting right now. Please try again or contact us directly at man@multiagroniaga.com',
+        content: `I apologize, but I'm having trouble connecting right now.${errorDetail ? ` (${errorDetail})` : ''} Please try again or contact us directly at man@multiagroniaga.com`,
         timestamp: new Date(),
         isError: true
       };
@@ -132,11 +163,11 @@ function ChatWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-3 sm:p-4 rounded-full shadow-2xl hover:from-emerald-700 hover:to-emerald-800 transition-all transform hover:scale-110 z-50 flex items-center gap-2 group"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-emerald-800 text-white p-3 sm:px-4 sm:py-3.5 rounded-sm border border-emerald-900/20 shadow-md shadow-gray-900/10 hover:bg-emerald-900 transition-colors duration-300 z-[60] flex items-center gap-2 group"
           aria-label="Open chat"
         >
-          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
-          <span className="hidden md:group-hover:inline-block text-sm font-semibold mr-2 animate-fade-in">
+          <MessageCircle className="w-5 h-5 sm:w-5 sm:h-5" />
+          <span className="hidden md:inline-block text-sm font-semibold">
             Chat with us
           </span>
         </button>
@@ -144,34 +175,34 @@ function ChatWidget() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className={`fixed inset-x-4 bottom-4 sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-96 bg-white rounded-2xl shadow-2xl z-50 flex flex-col transition-all ${
+        <div className={`fixed inset-x-4 bottom-4 sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-96 bg-white border border-gray-200 rounded-sm shadow-lg shadow-gray-900/10 z-[60] flex flex-col font-sans transition-all ${
           isMinimized ? 'h-16' : 'h-[85vh] sm:h-[600px] max-h-[600px]'
         }`}>
           {/* Header */}
-          <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-3 sm:p-4 rounded-t-2xl flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0">
-                <MessageCircle className="w-4 h-4 sm:w-6 sm:h-6 text-emerald-600" />
+          <div className="bg-emerald-800 text-white px-4 py-3.5 border-b border-emerald-900/30 flex items-center justify-between">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0">
+                <MessageCircle className="w-4 h-4 text-white" />
               </div>
               <div className="min-w-0">
-                <h3 className="font-bold text-sm sm:text-lg truncate">PT. MAN Assistant</h3>
-                <p className="text-[10px] sm:text-xs text-emerald-100">Powered by Google Gemini</p>
+                <h3 className="font-serif text-base sm:text-lg font-semibold truncate">PT. MAN Assistant</h3>
+                <p className="text-[11px] sm:text-xs text-emerald-100/90">Company inquiries</p>
               </div>
             </div>
-            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1 flex-shrink-0">
               <button
                 onClick={() => setIsMinimized(!isMinimized)}
-                className="hover:bg-white/20 p-1.5 sm:p-2 rounded-lg transition-colors"
+                className="hover:bg-emerald-900/60 p-2 rounded-sm transition-colors duration-300"
                 aria-label={isMinimized ? "Expand" : "Minimize"}
               >
-                <Minimize2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Minimize2 className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="hover:bg-white/20 p-1.5 sm:p-2 rounded-lg transition-colors"
+                className="hover:bg-emerald-900/60 p-2 rounded-sm transition-colors duration-300"
                 aria-label="Close chat"
               >
-                <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -180,24 +211,24 @@ function ChatWidget() {
           {!isMinimized && (
             <>
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gray-50">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-stone-50">
                 {messages.map((msg, index) => (
                   <div
                     key={index}
                     className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[85%] sm:max-w-[80%] rounded-2xl px-3 py-2 sm:px-4 sm:py-3 ${
+                      className={`max-w-[85%] sm:max-w-[80%] rounded-sm px-3.5 py-2.5 sm:px-4 sm:py-3 ${
                         msg.role === 'user'
-                          ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white'
+                          ? 'bg-emerald-800 text-white'
                           : msg.isError
-                          ? 'bg-red-100 text-red-800 border border-red-200'
-                          : 'bg-white text-gray-800 shadow-md'
+                          ? 'bg-red-50 text-red-900 border border-red-200'
+                          : 'bg-white text-gray-800 border border-gray-200'
                       }`}
                     >
-                      <p className="text-xs sm:text-sm whitespace-pre-wrap">{msg.content}</p>
-                      <p className={`text-[10px] sm:text-xs mt-1 ${
-                        msg.role === 'user' ? 'text-emerald-100' : 'text-gray-500'
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                      <p className={`text-[10px] sm:text-xs mt-1.5 ${
+                        msg.role === 'user' ? 'text-emerald-100/80' : 'text-gray-500'
                       }`}>
                         {formatTime(msg.timestamp)}
                       </p>
@@ -208,11 +239,11 @@ function ChatWidget() {
                 {/* Loading indicator */}
                 {isLoading && (
                   <div className="flex justify-start">
-                    <div className="bg-white rounded-2xl px-4 py-3 shadow-md">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                        <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                        <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    <div className="bg-white border border-gray-200 rounded-sm px-4 py-3">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 bg-emerald-700 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-1.5 h-1.5 bg-emerald-700 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                        <div className="w-1.5 h-1.5 bg-emerald-700 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                       </div>
                     </div>
                   </div>
@@ -220,13 +251,13 @@ function ChatWidget() {
 
                 {/* Quick Questions (only show at start) */}
                 {messages.length === 1 && !isLoading && (
-                  <div className="space-y-2">
-                    <p className="text-[10px] sm:text-xs text-gray-500 font-semibold">Quick questions:</p>
+                  <div className="space-y-2 pt-1">
+                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Quick questions</p>
                     {quickQuestions.map((question, index) => (
                       <button
                         key={index}
                         onClick={() => handleQuickQuestion(question)}
-                        className="w-full text-left text-xs sm:text-sm p-2 sm:p-3 bg-white hover:bg-emerald-50 border border-gray-200 hover:border-emerald-300 rounded-lg transition-all"
+                        className="w-full text-left text-sm p-3 bg-white hover:bg-emerald-50/40 border border-gray-200 hover:border-emerald-800 text-gray-700 hover:text-emerald-900 rounded-sm transition-colors duration-300"
                       >
                         {question}
                       </button>
@@ -238,7 +269,7 @@ function ChatWidget() {
               </div>
 
               {/* Input */}
-              <div className="p-3 sm:p-4 bg-white border-t border-gray-200 rounded-b-2xl">
+              <div className="p-4 bg-white border-t border-gray-200">
                 <div className="flex items-end gap-2">
                   <textarea
                     ref={inputRef}
@@ -248,20 +279,20 @@ function ChatWidget() {
                     placeholder="Type your message..."
                     rows="1"
                     disabled={isLoading}
-                    className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 sm:px-4 sm:py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+                    className="flex-1 resize-none border border-gray-300 rounded-sm px-4 py-3 text-gray-900 text-sm focus:outline-none focus:border-emerald-800 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-300"
                     style={{ maxHeight: '100px', fontSize: '16px' }}
                   />
                   <button
                     onClick={sendMessage}
                     disabled={!inputMessage.trim() || isLoading}
-                    className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-2 sm:p-3 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                    className="bg-emerald-800 text-white p-3 rounded-sm hover:bg-emerald-900 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 border border-emerald-900/20"
                     aria-label="Send message"
                   >
-                    <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <Send className="w-4 h-4" />
                   </button>
                 </div>
-                <p className="text-[10px] sm:text-xs text-gray-500 mt-2 text-center">
-                  Powered by Google Gemini • Press Enter to send
+                <p className="text-[11px] text-gray-500 mt-2 text-center">
+                  Press Enter to send
                 </p>
               </div>
             </>
