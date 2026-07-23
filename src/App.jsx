@@ -19,6 +19,8 @@ import refinedPalmOilBottles from './assets/images/refined-palm-oil-bottles.png'
 import bulkPalmOilContainers from './assets/images/bulk-palm-oil-containers.png';
 import direktorUtama from './assets/images/direkturutama.png';
 import direktur from './assets/images/direktur.jpg';
+import filterPressSystem from './assets/images/filter-press-system.png';
+import steamDistributionSystem from './assets/images/steam-distribution-system.png';
 
 const navItems = [
   { label: 'About', id: 'about' },
@@ -467,12 +469,12 @@ function App() {
                 {
                   title: 'Filter Press System',
                   desc: 'Sistem filtrasi tekanan untuk memisahkan CPO dari sludge. Meningkatkan pemulihan minyak dan mengurangi kerugian produksi.',
-                  image: processingMachinery,
+                  image: filterPressSystem,
                 },
                 {
                   title: 'Steam Distribution System',
                   desc: 'Sistem distribusi uap bertekanan ke unit-unit pengolahan untuk mendukung operasi yang stabil dan efisien.',
-                  image: refineryProcessingSystem,
+                  image: steamDistributionSystem,
                 },
                 {
                   title: 'Fasilitas Tangki Proses',
@@ -589,6 +591,8 @@ function App() {
               { title: 'Station Ripple Mill', desc: 'Produksi Palm Kernel', detail: 'Mechanical equipment modern', image: processingMachinery, span: '' },
               { title: 'Storage Tank', desc: 'Kapasitas 5.000 mton x 2', detail: 'Standar PORAM', image: cpoStorageTanks, span: '' },
               { title: 'Clarification Station', desc: 'Pemurnian CPO', detail: 'Digital pressing system', image: refineryProcessingSystem, span: 'gallery-span-wide' },
+              { title: 'Filter Press System', desc: 'Pemulihan minyak dari sludge', detail: 'Sistem filtrasi tekanan', image: filterPressSystem, span: '' },
+              { title: 'Steam Distribution System', desc: 'Distribusi uap ke unit pengolahan', detail: 'Jaringan uap bertekanan', image: steamDistributionSystem, span: '' },
               { title: 'Quality Control Lab', desc: 'Laboratorium modern', detail: 'Testing & analysis', image: qualityControlLab, span: '' },
               { title: 'Loading Port', desc: 'Fasilitas pelabuhan', detail: 'Kapal cargo & truck losing', image: vesselLoadingOperations, span: '' },
               { title: 'Buah Sawit (TBS)', desc: 'Fresh Fruit Bunches', detail: 'Kualitas export grade', image: freshFruitBunchesTransport, span: '' },
@@ -625,6 +629,8 @@ function App() {
               <ul className="space-y-3 prose-body text-sm md:text-base">
                 <li>Station Ripple Mill dengan conveyor modern</li>
                 <li>Clarification station untuk pemurnian CPO</li>
+                <li>Filter Press untuk pemulihan minyak dari sludge</li>
+                <li>Steam distribution system ke unit pengolahan</li>
                 <li>Laboratorium quality control lengkap</li>
                 <li>Storage tank kapasitas 10.000 mton total</li>
               </ul>
