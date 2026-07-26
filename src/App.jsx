@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Phone, Mail, MapPin, Leaf } from 'lucide-react';
+import { Menu, X, Phone, Mail, MapPin } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import ChatWidget from './ChatWidget';
 
@@ -21,6 +21,7 @@ import direktorUtama from './assets/images/direkturutama.png';
 import direktur from './assets/images/direktur.jpg';
 import filterPressSystem from './assets/images/filter-press-system.png';
 import steamDistributionSystem from './assets/images/steam-distribution-system.png';
+import companyLogo from './assets/images/logo.png';
 
 const navItems = [
   { label: 'About', id: 'about' },
@@ -81,9 +82,11 @@ function App() {
               onClick={() => scrollToSection('home')}
               className="flex items-center gap-3 text-left group"
             >
-              <div className="w-10 h-10 bg-emerald-800 flex items-center justify-center flex-shrink-0 transition-colors duration-300 group-hover:bg-emerald-900">
-                <Leaf className="w-4 h-4 text-white" />
-              </div>
+              <img
+                src={companyLogo}
+                alt="PT. Multi Agronabatindo Niaga"
+                className="w-10 h-10 md:w-11 md:h-11 object-contain flex-shrink-0"
+              />
               <div>
                 <p className="text-sm md:text-base font-semibold text-gray-900 leading-tight tracking-tight">
                   PT. MULTI AGRONABATINDO NIAGA
@@ -651,7 +654,7 @@ function App() {
           <div className="reveal grid lg:grid-cols-2 gap-14 lg:gap-20 mb-20">
             <div className="space-y-10">
               <div>
-                <h3 className="font-serif text-xl md:text-2xl font-semibold text-gray-900 mb-5">Head Office</h3>
+                <h3 className="font-serif text-xl md:text-2xl font-semibold text-gray-900 mb-5">Registered Office</h3>
                 <div className="space-y-4 prose-body text-sm md:text-base">
                   <p className="flex gap-3">
                     <MapPin className="w-5 h-5 text-emerald-800 flex-shrink-0 mt-0.5" />
@@ -672,7 +675,7 @@ function App() {
               </div>
 
               <div className="pt-8 border-t border-gray-200">
-                <h3 className="font-serif text-xl md:text-2xl font-semibold text-gray-900 mb-5">Branch Office</h3>
+                <h3 className="font-serif text-xl md:text-2xl font-semibold text-gray-900 mb-5">Main Office</h3>
                 <div className="space-y-4 prose-body text-sm md:text-base">
                   <p className="flex gap-3">
                     <MapPin className="w-5 h-5 text-emerald-800 flex-shrink-0 mt-0.5" />
@@ -891,9 +894,12 @@ function App() {
           <div className="grid md:grid-cols-3 gap-12 md:gap-16">
             <div>
               <div className="flex items-center gap-3.5 mb-5">
-                <div className="w-10 h-10 bg-emerald-800 flex items-center justify-center">
-                  <Leaf className="w-5 h-5 text-white" />
-                </div>
+                <img
+                  src={companyLogo}
+                  alt=""
+                  aria-hidden="true"
+                  className="w-10 h-10 object-contain flex-shrink-0"
+                />
                 <div>
                   <p className="font-serif text-white font-semibold text-base leading-tight">
                     PT. Multi Agronabatindo Niaga

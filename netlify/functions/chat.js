@@ -16,11 +16,11 @@ LEGAL INFORMATION:
 - NPWP: 01.906.860.0-123.000
 
 OFFICES:
-Head Office:
+Registered Office:
 - Address: Jl. Kapten Muslim Komp. Ruko Tata Plaza Blok B No. 15, Kel. Dwi Kora, Kec. Medan Helvetia, Kota Medan 20123, Sumatera Utara
 - Email: man@multiagroniaga.com
 
-Branch Office:
+Main Office:
 - Address: Jl. Putri Hijau Komp. Graha Niaga Blok C 11 Lantai – 3, Medan 20114, Sumatera Utara
 - Phone: 061 - 4555092
 - Email: man@multiagroniaga.com
