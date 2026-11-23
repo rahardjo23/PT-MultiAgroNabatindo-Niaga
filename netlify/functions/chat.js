@@ -1,4 +1,4 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+import { GoogleGenAI } from '@google/genai';
 
 // Models are tried in order. If one is overloaded (503/429) it is retried,
 // then the next model is used. If one is unavailable (404) it is skipped.
@@ -96,29 +96,29 @@ async function generateWithFallback(genAI, prompt, startedAt) {
   let lastError;
 
   for (const modelName of MODELS) {
-    const model = genAI.getGenerativeModel({
-      model: modelName,
-      systemInstruction: COMPANY_CONTEXT,
-      generationConfig: {
-        maxOutputTokens: 1000,
-        temperature: 0.7,
-      },
-    });
-
     for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_MODEL; attempt++) {
       if (Date.now() - startedAt > TIME_BUDGET_MS) {
         throw lastError || new Error('503 time budget exceeded');
       }
 
       try {
-        const result = await model.generateContent(prompt);
+        const result = await genAI.models.generateContent({
+          model: modelName,
+          contents: prompt,
+          config: {
+            systemInstruction: COMPANY_CONTEXT,
+            maxOutputTokens: 1000,
+            temperature: 0.7,
+            httpOptions: { retryOptions: { attempts: 1 } },
+          },
+        });
         console.log(`Answered by ${modelName} (attempt ${attempt + 1})`);
-        return result.response.text();
+        return result.text;
       } catch (err) {
         lastError = err;
         console.warn(
           `${modelName} attempt ${attempt + 1} failed:`,
-          ((err && err.message) || '').slice(0, 140)
+          Number.isInteger(err?.status) ? err.status : 'unknown status'
         );
 
         if (isMissing(err)) break; // go to next model
@@ -152,7 +152,7 @@ function buildPrompt(message, conversationHistory) {
 
 // ---------- Handler ----------
 
-exports.handler = async (event) => {
+export default async (request) => {
   const startedAt = Date.now();
 
   // Handle CORS
@@ -163,40 +163,28 @@ exports.handler = async (event) => {
     'Content-Type': 'application/json',
   };
 
-  const reply = (statusCode, payload) => ({
-    statusCode,
-    headers,
-    body: JSON.stringify(payload),
-  });
+  const reply = (status, payload) => Response.json(payload, { status, headers });
 
   // Handle preflight request
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers, body: '' };
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers });
   }
 
   // Only allow POST requests
-  if (event.httpMethod !== 'POST') {
+  if (request.method !== 'POST') {
     return reply(405, { error: 'Method not allowed' });
   }
 
   try {
-    // Check if API key is set
-    if (!process.env.GEMINI_API_KEY) {
-      console.error('GEMINI_API_KEY is not set');
-      return reply(500, {
-        error: 'Server configuration error. Please contact the administrator.',
-      });
-    }
-
     // Parse request body
     let body;
     try {
-      body = JSON.parse(event.body || '{}');
-    } catch (parseError) {
+      body = JSON.parse((await request.text()) || '{}');
+    } catch {
       return reply(400, { error: 'Invalid JSON body' });
     }
 
-    const { message, conversationHistory = [] } = body;
+    const { message, conversationHistory = [] } = body ?? {};
 
     if (!message || typeof message !== 'string' || !message.trim()) {
       return reply(400, { error: 'Message is required' });
@@ -206,7 +194,7 @@ exports.handler = async (event) => {
       return reply(400, { error: 'conversationHistory must be an array' });
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const genAI = new GoogleGenAI({});
     const prompt = buildPrompt(message.trim().slice(0, MAX_MESSAGE_LENGTH), conversationHistory);
     const assistantMessage = await generateWithFallback(genAI, prompt, startedAt);
 
@@ -215,8 +203,7 @@ exports.handler = async (event) => {
       conversationId: Date.now().toString(),
     });
   } catch (error) {
-    // Full details stay in the function log, not in the response
-    console.error('Chat error:', (error && error.message) || error);
+    console.error('Chat error:', Number.isInteger(error?.status) ? error.status : 'unknown status');
 
     if (isBusy(error)) {
       return reply(503, {
