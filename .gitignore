@@ -30,3 +30,6 @@ dist-ssr
 # Image optimization folders
 src/assets/images-optimized
 src/assets/images-backup
+
+.env
+node_modules
